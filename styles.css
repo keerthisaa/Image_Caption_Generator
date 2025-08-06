@@ -1,0 +1,240 @@
+/* styles.css - Shared across all pages */
+:root {
+    --primary: #2c3e50;
+    --secondary: #1abc9c;
+    --accent: #3498db;
+    --light: #f4f4f9;
+    --dark: #333;
+    --danger: #e74c3c;
+    --success: #2ecc71;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --radius: 10px;
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light);
+    color: var(--dark);
+    line-height: 1.6;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--primary);
+    padding: 15px 30px;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand i {
+    margin-right: 10px;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 15px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    font-size: 16px;
+    transition: var(--transition);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.navbar a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar a.active {
+    background-color: var(--secondary);
+}
+
+.navbar a i {
+    margin-right: 8px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    color: var(--primary);
+    text-align: center;
+}
+
+.btn {
+    padding: 12px 25px;
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background-color: var(--accent);
+}
+
+.btn-success {
+    background-color: var(--success);
+}
+
+.btn-danger {
+    background-color: var(--danger);
+}
+
+.btn-secondary {
+    background-color: var(--secondary);
+}
+
+.error-message {
+    color: var(--danger);
+    background-color: #fdecea;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 15px 0;
+    display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .navbar-links {
+        margin-top: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .container {
+        padding: 20px;
+        margin: 20px 15px;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid var(--secondary);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+    display: none;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.result-container {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: var(--radius);
+    margin-top: 20px;
+}
+
+.section-title {
+    color: var(--primary);
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--secondary);
+    padding-bottom: 5px;
+}
+.media-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    border: 2px dashed var(--secondary);
+    border-radius: var(--radius);
+    background-color: #f9f9f9;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.media-container:hover {
+    border-color: var(--accent);
+}
+
+.placeholder-text {
+    text-align: center;
+    color: #666;
+}
+
+.placeholder-text i {
+    color: var(--secondary);
+    margin-bottom: 10px;
+}
+
+    
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px 0;
+    border-left: 4px solid #c62828;
+    display: none;
+}

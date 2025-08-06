@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Description Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .media-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            border: 2px dashed var(--secondary);
+            border-radius: var(--radius);
+            background-color: #f9f9f9;
+            min-height: 300px;
+            max-height: 500px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: var(--transition);
+        }
+        #preview, #videoPreview {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+    
+        .placeholder-text {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+    
+        .camera-feed {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            border: 2px solid #ddd;
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        #cameraVideo {
+            width: 100%;
+            max-height: 400px;
+            background-color: #000;
+        }
+        .camera-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: none;
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: var(--secondary);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .file-input {
+            position: relative;
+        }
+        
+        .file-input input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            min-width: 150px;
+        }
+        
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+        .language-selector {
+            margin: 20px auto;
+            max-width: 300px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <a href="/" class="navbar-brand">
+            <i class="fas fa-image"></i> DescribeImage
+        </a>
+        <div class="navbar-links">
+            <a href="/"><i class="fas fa-home"></i> Home</a>
+            <a href="/about"><i class="fas fa-info-circle"></i> About</a>
+            <a href="/login"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="/icg" class="active"><i class="fas fa-camera"></i> Generator</a>
+            <a href="/contact"><i class="fas fa-envelope"></i> Contact</a>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1><i class="fas fa-image"></i> Image Description Generator</h1>
+        
+        <!-- Error/Success Messages -->
+        <div class="error-message" id="errorMessage"></div>
+        
+        <!-- Media Input -->
+        <div class="media-container" id="mediaContainer">
+            <div class="placeholder-text">
+                <i class="fas fa-image fa-3x" style="margin-bottom: 15px;"></i>
+                <p>No image or video selected</p>
+            </div>
+            <img id="preview" src="#" alt="Preview" style="display:none;">
+            <video id="videoPreview" controls style="display:none;"></video>
+        </div>
+
+        <!-- Camera Feed -->
+        <div class="camera-feed" id="cameraFeed">
+            <video id="cameraVideo" autoplay playsinline></video>
+            <div class="camera-controls">
+                <button class="btn btn-success" id="cameraOnButton">
+                    <i class="fas fa-camera"></i> Start Camera
+                </button>
+                <button class="btn btn-danger" id="cameraOffButton" style="display: none;">
+                    <i class="fas fa-stop"></i> Stop Camera
+                </button>
+                <button class="btn btn-primary" id="captureButton" style="display: none;">
+                    <i class="fas fa-camera-retro"></i> Capture
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="control-group">
+                <div class="file-input">
+                    <input type="file" id="image" accept="image/*" onchange="loadFile(event)">
+                    <label for="image" class="btn btn-primary">
+                        <i class="fas fa-image"></i> Choose Image
+                    </label>
+                </div>
+                <div class="file-input">
+                    <input type="file" id="video" accept="video/*" onchange="loadVideo(event)">
+                    <label for="video" class="btn btn-primary">
+                        <i class="fas fa-video"></i> Choose Video
+                    </label>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <button class="btn btn-secondary" id="useCameraBtn">
+                    <i class="fas fa-camera"></i> Use Camera
+                </button>
+            </div>
+        </div>
+
+        <!-- Language Selector -->
+        <div class="language-selector">
+            <label for="language" style="display: block; margin-bottom: 8px;">
+                <i class="fas fa-language"></i> Output Language
+            </label>
+            <select id="language" class="form-control">
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="hi">Hindi</option>
+                <option value="de">German</option>
+                <option value="ja">Japanese</option>
+            </select>
+        </div>
+
+        <!-- Generate Button -->
+        <div style="text-align: center;">
+            <button class="btn btn-success" id="generateBtn">
+                <i class="fas fa-magic"></i> Generate Description
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div class="loader" id="loader"></div>
+        <div class="result-container" id="resultContainer" style="display: none;">
+            <h3 class="section-title">Description Result</h3>
+            <div id="captionResult"></div>
+            <div class="audio-player" id="audioPlayer" style="display: none;">
+                <audio controls id="audioElement" style="width: 100%;"></audio>
+            </div>
+        </div>
+    </div>
+    <script>
+        let cameraStream = null;
+        let isProcessing = false;
+        let isCameraActive = false;
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+
+        function loadFile(event) {
+            const preview = document.getElementById('preview');
+            const videoPreview = document.getElementById('videoPreview');
+            const mediaContainer = document.getElementById('mediaContainer');
+            const placeholder = mediaContainer.querySelector('.placeholder-text');
+            
+            if (event.target.files.length > 0) {
+                const file = event.target.files[0];
+                const fileType = file.type.split('/')[0];
+                
+                if (fileType === 'image') {
+                    preview.src = URL.createObjectURL(file);
+                    preview.style.display = "block";
+                    videoPreview.style.display = "none";
+                    placeholder.style.display = "none";
+                    
+                    // Stop camera if active
+                    if (isCameraActive) {
+                        stopCamera();
+                    }
+                } else {
+                    showError("Please select an image file for this option");
+                    event.target.value = '';
+                }
+            }
+        }
+
+        function loadVideo(event) {
+            const preview = document.getElementById('preview');
+            const videoPreview = document.getElementById('videoPreview');
+            const mediaContainer = document.getElementById('mediaContainer');
+            const placeholder = mediaContainer.querySelector('.placeholder-text');
+            
+            if (event.target.files.length > 0) {
+                const file = event.target.files[0];
+                const fileType = file.type.split('/')[0];
+                
+                if (fileType === 'video') {
+                    videoPreview.src = URL.createObjectURL(file);
+                    videoPreview.style.display = "block";
+                    preview.style.display = "none";
+                    placeholder.style.display = "none";
+                    
+                    // Stop camera if active
+                    if (isCameraActive) {
+                        stopCamera();
+                    }
+                } else {
+                    showError("Please select a video file for this option");
+                    event.target.value = '';
+                }
+            }
+        }
+
+        async function startCamera() {
+            const cameraFeed = document.getElementById('cameraFeed');
+            const cameraVideo = document.getElementById('cameraVideo');
+            const cameraOnButton = document.getElementById('cameraOnButton');
+            const cameraOffButton = document.getElementById('cameraOffButton');
+            const captureButton = document.getElementById('captureButton');
+            const mediaContainer = document.getElementById('mediaContainer');
+            
+            try {
+                // Clear any existing media
+                document.getElementById('image').value = '';
+                document.getElementById('video').value = '';
+                document.getElementById('preview').style.display = 'none';
+                document.getElementById('videoPreview').style.display = 'none';
+                
+                cameraFeed.style.display = "block";
+                cameraOnButton.style.display = "none";
+                cameraOffButton.style.display = "inline-block";
+                captureButton.style.display = "inline-block";
+                mediaContainer.style.display = "none";
+                
+                const constraints = {
+                    video: {
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 },
+                        facingMode: "environment"
+                    }
+                };
+                
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                cameraStream = stream;
+                cameraVideo.srcObject = stream;
+                isCameraActive = true;
+                
+                // Enable the generate button when camera is active
+                document.getElementById('generateBtn').disabled = false;
+                
+            } catch (error) {
+                console.error("Error accessing camera:", error);
+                showError("Failed to access camera. Please ensure permissions are granted.");
+                stopCamera();
+            }
+        }
+
+        function stopCamera() {
+            const cameraFeed = document.getElementById('cameraFeed');
+            const cameraVideo = document.getElementById('cameraVideo');
+            const cameraOnButton = document.getElementById('cameraOnButton');
+            const cameraOffButton = document.getElementById('cameraOffButton');
+            const captureButton = document.getElementById('captureButton');
+            const mediaContainer = document.getElementById('mediaContainer');
+            
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+
+            cameraVideo.srcObject = null;
+            cameraFeed.style.display = "none";
+            cameraOnButton.style.display = "inline-block";
+            cameraOffButton.style.display = "none";
+            captureButton.style.display = "none";
+            mediaContainer.style.display = 'block';
+            isCameraActive = false;
+        }
+
+        document.getElementById('useCameraBtn').addEventListener('click', startCamera);
+        document.getElementById('cameraOffButton').addEventListener('click', stopCamera);
+
+        document.getElementById('captureButton').addEventListener('click', () => {
+            const cameraVideo = document.getElementById('cameraVideo');
+            const canvas = document.createElement('canvas');
+            canvas.width = cameraVideo.videoWidth;
+            canvas.height = cameraVideo.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            // Display the captured photo in the preview container
+            const preview = document.getElementById('preview');
+            const mediaContainer = document.getElementById('mediaContainer');
+            const placeholder = mediaContainer.querySelector('.placeholder-text');
+            
+            preview.src = imageData;
+            preview.style.display = "block";
+            placeholder.style.display = "none";
+            mediaContainer.style.display = 'block';
+            stopCamera();
+        });
+
+        async function generateCaption() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const imageInput = document.getElementById("image");
+            const videoInput = document.getElementById("video");
+            const captionResult = document.getElementById("captionResult");
+            const loader = document.getElementById("loader");
+            const audioPlayer = document.getElementById("audioPlayer");
+            const audioElement = document.getElementById("audioElement");
+            const language = document.getElementById("language").value;
+            const resultContainer = document.getElementById("resultContainer");
+            const generateBtn = document.getElementById("generateBtn");
+            const progressContainer = document.getElementById("progressContainer");
+            const progressBar = document.getElementById("progressBar");
+            const mediaContainer = document.getElementById('mediaContainer');
+            const placeholder = mediaContainer.querySelector('.placeholder-text');
+            const preview = document.getElementById('preview');
+
+            // Check if camera image is being used
+            const isCameraImage = preview.src.startsWith('data:image') && isCameraActive === false;
+
+            if ((imageInput.files.length === 0 && videoInput.files.length === 0 && !isCameraImage) || 
+                (imageInput.files.length > 0 && placeholder.style.display !== "none") ||
+                (videoInput.files.length > 0 && placeholder.style.display !== "none")) {
+                showError("Please select an image or video first!");
+                isProcessing = false;
+                return;
+            }
+
+            const formData = new FormData();
+            let isVideo = false;
+            
+            if (imageInput.files.length > 0) {
+                formData.append("image", imageInput.files[0]);
+            } else if (videoInput.files.length > 0) {
+                formData.append("video", videoInput.files[0]);
+                isVideo = true;
+            } else if (isCameraImage) {
+                // Handle camera capture
+                const blob = await fetch(preview.src).then(r => r.blob());
+                formData.append("image", blob, "camera_capture.jpg");
+            }
+            
+            formData.append("language", language);
+
+            loader.style.display = "block";
+            captionResult.innerHTML = "";
+            audioPlayer.style.display = "none";
+            resultContainer.style.display = "none";
+            generateBtn.disabled = true;
+            
+            if (isVideo) {
+                progressContainer.style.display = "block";
+                progressBar.style.width = "0%";
+            }
+
+            try {
+                const response = await fetch("/icg", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    resultContainer.style.display = "block";
+                    if (data.caption) {
+                        captionResult.innerHTML = `<p><strong>Description:</strong> ${data.caption}</p>`;
+                        if (data.audio_url) {
+                            audioElement.src = data.audio_url;
+                            audioPlayer.style.display = "block";
+                        }
+                    } else if (data.captions) {
+                        captionResult.innerHTML = `
+                            <p><strong>Video Descriptions:</strong></p>
+                            <ul>
+                                ${data.captions.map((caption, index) => `
+                                    <li>
+                                        ${caption}
+                                        ${data.audio_urls && data.audio_urls[index] ? 
+                                            `<audio src="${data.audio_urls[index]}" controls style="width: 100%; margin-top: 5px;"></audio>` : ''}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        `;
+                    }
+                }
+            } catch (error) {
+                showError("Failed to generate description. Please try again.");
+                console.error("Error:", error);
+            } finally {
+                loader.style.display = "none";
+                generateBtn.disabled = false;
+                progressContainer.style.display = "none";
+                isProcessing = false;
+            }
+        }
+
+        // Initialize event listeners
+        document.getElementById('generateBtn').addEventListener('click', generateCaption);
+    </script>
+</body>
+</html>
