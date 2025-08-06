@@ -78,7 +78,7 @@ The **Image Caption Generator** is a robust application designed to:
 
 ---
 
-## 🚀 Installation and setup
+## 🚀 Installation and Setup
 
 ```bash
 git clone https://github.com/keerthisaa/ImageCaptionGenerator.git
@@ -96,7 +96,9 @@ source image_caption_env/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
+# 👉 IMPORTANT: Create required folders
+mkdir static # copy css file in this
+mkdir templates # copy html files in this
+
 # Run the application
 python app.py
-
-#Then open http://localhost:5000 in your browser.
